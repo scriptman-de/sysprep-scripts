@@ -1,0 +1,15 @@
+{
+  "name": "@scriptman-de/getwindowsupdates",
+  "version": "1.0.0",
+  "description": "Retrieves Windows Update List from WHDownloader XML file",
+  "main": "getWindowsUpdates.js",
+  "scripts": {
+    "fetch": "node getWindowsUpdates.js"
+  },
+  "keywords": [],
+  "author": "Martin Aulenbach <info@scriptman.de>",
+  "license": "ISC",
+  "dependencies": {
+    "xml2js": "0.4.19"
+  }
+}
