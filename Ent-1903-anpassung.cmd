@@ -12,7 +12,7 @@ if /i not "%~2"=="" goto usage
 cls
 echo.
 echo ************************************************************
-echo ***               Windows 10 Enterprise 1903              ***
+echo ***               Windows 10 Enterprise 1903             ***
 echo ***               automated image creation               ***
 echo ************************************************************
 rem created by Martin Aulenbach 08-21-2019
@@ -119,11 +119,9 @@ rem
 echo *** Mounting Windows image ***
 set /a MountIndex=1
 set /a LastNumberMount=1
-set /a MaxMountNumber=1
 for /f "tokens=1,2* delims=: " %%L in ('dism /English /Get-WimInfo /WimFile:%TARGETIMAGE%') do (
   if "%%L"=="Index" (
     set /a LastNumberMount=%%M
-    set /a MaxMountNumber=%%M
   )
 )
 if !LastNumberMount! equ 1 echo *** Only one image in target file available *** && goto mountnext
@@ -212,16 +210,31 @@ rem
 rem unmount image
 rem
 echo *** Unmount Windows 10 image ***
-choice /T 10 /D A /C AS /M "[A]ppend image or [S]ave it? default: Append"
-if errorlevel 2 ( dism /English /Unmount-Image /MountDir:%MOUNTDIR% /Commit /CheckIntegrity )
+choice /T 10 /D A /C AS /M "[A]ppend or [S]ave image? default: A"
+if errorlevel 2 ( 
+  echo.
+  echo * Saving Image
+  echo.
+  dism /English /Unmount-Image /MountDir:%MOUNTDIR% /Commit /CheckIntegrity
+)
 if errorlevel 1 (
+  echo.
+  echo * Appending Image
+  echo.
   dism /English /Unmount-Image /MountDir:%MOUNTDIR% /Commit /CheckIntegrity /Append
 
+  rem get the image number for appended image
+  set /a LastNumberMount=1
+  for /f "tokens=1,2* delims=: " %%L in ('dism /English /Get-WimInfo /WimFile:%TARGETIMAGE%') do (
+    if "%%L"=="Index" (
+      set /a LastNumberMount=%%M
+    )
+  )
   rem change name for appended image
-  set /a AppendedMountNumber=%MaxMountNumber%+1
-  echo MountNumber of new image is %AppendedMountNumber%
+  echo MountNumber of new image is !LastNumberMount!
+  echo %IMAGEX% /INFO %TARGETIMAGE% !LastNumberMount! "Windows 10 Enterprise %today%" "[Script] Anpassungen & Patches"
   if exist %IMAGEX% (
-    %IMAGEX% /INFO %TARGETIMAGE% %MaxMountNumber% "Windows 10 Education %today%" "[Script] Anpassungen & Patches"
+    %IMAGEX% /INFO %TARGETIMAGE% %LastNumberMount% "Windows 10 Enterprise %today%" "[Script] Anpassungen & Patches"
   )
 )
 
