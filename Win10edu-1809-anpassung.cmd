@@ -54,7 +54,7 @@ if not exist %MOUNTDIR% (
 rem
 rem get patches for this windows version
 rem
-for /f "tokens=*" %%i in ('node "%~d0\7_Sysprep\getWindowsUpdates\getWindowsUpdates.js" "%~d0\4_WindowsUpdateKatalog\Windows10-x64.xml" 17763') do set PATCHES=%%i
+for /f "tokens=*" %%i in ('node "%~dp0\getWindowsUpdates\getWindowsUpdates.js" "%~d0\4_WindowsUpdateKatalog\Windows10-x64.xml" 17763') do set PATCHES=%%i
 if errorlevel 1 (
   echo ERROR: Updates could not be determined
   goto fail

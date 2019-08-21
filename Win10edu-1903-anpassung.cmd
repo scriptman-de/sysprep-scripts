@@ -32,12 +32,26 @@ set BASEWIM=%~d0\2_IMAGES\WIM\win10edu-1903-base.wim
 if /i "%~1"=="" ( set TARGETIMAGE=%~d0\2_IMAGES\win10edu-1903-%today%.wim ) else ( set TARGETIMAGE=%~1 )
 set PATCHESPATH=%~d0\4_WindowsUpdateKatalog\Updates\Windows10-x64\General\18362
 set MOUNTDIR=%SYSTEMDRIVE%\mount\windows
+set IMAGEX="C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\DISM\imagex.exe"
 set EXITCODE=0
 
 rem check administrative rights
 whoami /groups | find "S-1-16-12288" > nul
 if errorlevel 1 (
   echo ERROR: Script needs to be run with administrative rights!
+  goto fail
+)
+
+rem check imagex location
+if not exist %IMAGEX% (
+  echo ERROR: ImageX must be available
+  goto fail
+)
+
+rem check presence of nodejs
+where /Q node.exe 1> nul 2>&1
+if %errorlevel% neq 0 (
+  echo ERROR: NodeJs must be present
   goto fail
 )
 
@@ -103,9 +117,9 @@ rem
 rem Mount image
 rem
 echo *** Mounting Windows image ***
-set MountIndex=1
-set LastNumberMount=1
-set MaxMountNumber=1
+set /a MountIndex=1
+set /a LastNumberMount=1
+set /a MaxMountNumber=1
 for /f "tokens=1,2* delims=: " %%L in ('dism /English /Get-WimInfo /WimFile:%TARGETIMAGE%') do (
   if "%%L"=="Index" (
     set /a LastNumberMount=%%M
@@ -137,6 +151,7 @@ for %%f in (%PATCHES%) do (
 popd
 echo.
 
+
 :startlayout
 rem
 rem startlayout
@@ -144,8 +159,8 @@ rem
 echo *** Copy default start menu layout ***
 choice /T 5 /D N /C YN /M "Copy start menu layout? default: no"
 if errorlevel 2 goto auditmode
-powershell "Import-StartLayout -LayoutPath '%~d0\7_Sysprep\StartLayout_with_taskbar.xml' -MountPath '%MOUNTDIR%\\'"
-rem copy "%~d0\7_Sysprep\StartLayout_with_taskbar.xml" "%MOUNTDIR%\Users\Default\AppData\Local\Microsoft\Windows\Shell\LayoutModification.xml"
+rem powershell "Import-StartLayout -LayoutPath '%~d0\7_Sysprep\StartLayout_with_taskbar.xml' -MountPath '%MOUNTDIR%\\'"
+copy /y "%~d0\7_Sysprep\StartLayout_with_taskbar.xml" "%MOUNTDIR%\Users\Default\AppData\Local\Microsoft\Windows\Shell\LayoutModification.xml"
 echo.
 
 
@@ -175,6 +190,7 @@ reg add "HKLM\DEFAULT\Software\Microsoft\Windows\CurrentVersion\Explorer\Advance
 reg add "HKLM\DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" /v PeopleBand /t REG_DWORD /d 0 /f
 reg add "HKLM\DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Search" /v SearchboxTaskbarMode /t REG_DWORD /d 1 /f
 reg add "HKLM\DEFAULT\Software\Microsoft\Office\16.0\Common\General" /v ShownFirstRunOptin /t REG_DWORD /d 1 /f
+reg add "HKLM\DEFAULT\SOFTWARE\Adobe\Acrobat Reader\DC\AdobeViewer" /v EULA /t REG_DWORD /d 1 /f
 reg delete "HKLM\DEFAULT\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v OneDriveSetup /F
 reg unload HKLM\DEFAULT
 echo.
@@ -196,14 +212,20 @@ rem
 rem unmount image
 rem
 echo *** Unmount Windows 10 image ***
-choice /T 10 /D S /C AS /M "[A]ppend image or [S]ave it? default: Save"
+choice /T 10 /D A /C AS /M "[A]ppend image or [S]ave it? default: Append"
 if errorlevel 2 ( dism /English /Unmount-Image /MountDir:%MOUNTDIR% /Commit /CheckIntegrity )
 if errorlevel 1 (
   dism /English /Unmount-Image /MountDir:%MOUNTDIR% /Commit /CheckIntegrity /Append
-  set /a MaxMountNumber=%MaxMountNumber%+1
+
+  rem change name for appended image
+  set /a AppendedMountNumber=%MaxMountNumber%+1
+  echo MountNumber of new image is %AppendedMountNumber%
+  if exist %IMAGEX% (
+    %IMAGEX% /INFO %TARGETIMAGE% %MaxMountNumber% "Windows 10 Education %today%" "[Script] Anpassungen & Patches"
+  )
 )
 
-powershell "get-windowsimage -imagepath '%TARGETIMAGE%'"
+powershell "Get-WindowsImage -ImagePath '%TARGETIMAGE%'"
 
 goto success
 
@@ -235,6 +257,7 @@ goto cleanup
 
 :fail
 set EXITCODE=1
+pause
 goto cleanup
 
 :cleanup
