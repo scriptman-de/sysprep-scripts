@@ -60,6 +60,12 @@
                 <NetworkLocation>Work</NetworkLocation>
                 <ProtectYourPC>3</ProtectYourPC>
             </OOBE>
+            <OEMInformation>
+                <HelpCustomized>false</HelpCustomized>
+                <Logo>c:\Windows\Logo_positive_jpg_middle.bmp</Logo>
+                <Manufacturer>FUJITSU</Manufacturer>
+                <SupportURL>http://support.ts.fujitsu.com/FTSWinHelp.asp?action=helpdesk</SupportURL>
+            </OEMInformation>
             <UserAccounts>
                 <AdministratorPassword>
                     <Value>RwB1AG0AYQBqAG8AbQBpADEAIQBBAGQAbQBpAG4AaQBzAHQAcgBhAHQAbwByAFAAYQBzAHMAdwBvAHIAZAA=</Value>

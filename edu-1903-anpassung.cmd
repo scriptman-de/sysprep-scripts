@@ -1,5 +1,5 @@
 @ECHO OFF
-title Windows 10 Enterprise 1903 image creation
+title Windows 10 Education 1903 image creation
 setlocal ENABLEDELAYEDEXPANSION
 
 rem
@@ -12,11 +12,11 @@ if /i not "%~2"=="" goto usage
 cls
 echo.
 echo ************************************************************
-echo ***               Windows 10 Enterprise 1903             ***
+echo ***               Windows 10 Education 1903              ***
 echo ***               automated image creation               ***
 echo ************************************************************
-rem created by Martin Aulenbach 08-21-2019
-rem last modified 08-21-2019
+rem created by Martin Aulenbach 06-16-2019
+rem last modified 06-16-2019
 echo.
 
 rem
@@ -28,8 +28,8 @@ set today=%MyDate:~0,4%%MyDate:~4,2%%MyDate:~6,2%
 rem
 rem Set variables for local use
 rem
-set BASEWIM=%~d0\2_IMAGES\WIM\ent-1903-base.wim
-if /i "%~1"=="" ( set TARGETIMAGE=%~d0\2_IMAGES\ent-1903-%today%.wim ) else ( set TARGETIMAGE=%~1 )
+set BASEWIM=%~d0\2_IMAGES\WIM\win10edu-1903-base.wim
+if /i "%~1"=="" ( set TARGETIMAGE=%~d0\2_IMAGES\edu-1903-%today%.wim ) else ( set TARGETIMAGE=%~1 )
 set PATCHESPATH=%~d0\4_WindowsUpdateKatalog\Updates\Windows10-x64\General\18362
 set MOUNTDIR=%SYSTEMDRIVE%\mount\windows
 set IMAGEX="C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\DISM\imagex.exe"
@@ -49,7 +49,7 @@ if not exist %IMAGEX% (
 )
 
 rem check presence of nodejs
-where /Q node.exe 1>nul 2>&1
+where /Q node.exe 1> nul 2>&1
 if %errorlevel% neq 0 (
   echo ERROR: NodeJs must be present
   goto fail
@@ -119,9 +119,11 @@ rem
 echo *** Mounting Windows image ***
 set /a MountIndex=1
 set /a LastNumberMount=1
+set /a MaxMountNumber=1
 for /f "tokens=1,2* delims=: " %%L in ('dism /English /Get-WimInfo /WimFile:%TARGETIMAGE%') do (
   if "%%L"=="Index" (
     set /a LastNumberMount=%%M
+    set /a MaxMountNumber=%%M
   )
 )
 if !LastNumberMount! equ 1 echo *** Only one image in target file available *** && goto mountnext
@@ -232,9 +234,9 @@ if errorlevel 1 (
   )
   rem change name for appended image
   echo MountNumber of new image is !LastNumberMount!
-  echo %IMAGEX% /INFO %TARGETIMAGE% !LastNumberMount! "Windows 10 Enterprise %today%" "[Script] Anpassungen & Patches"
+  echo %IMAGEX% /INFO %TARGETIMAGE% !LastNumberMount! "Windows 10 Education %today%" "[Script] Anpassungen & Patches"
   if exist %IMAGEX% (
-    %IMAGEX% /INFO %TARGETIMAGE% %LastNumberMount% "Windows 10 Enterprise %today%" "[Script] Anpassungen & Patches"
+    %IMAGEX% /INFO %TARGETIMAGE% !LastNumberMount! "Windows 10 Education %today%" "[Script] Anpassungen & Patches"
   )
 )
 
