@@ -80,6 +80,7 @@ echo Base image: %BASEWIM%
 echo Image name: %TARGETIMAGE%
 echo Patches:    %PATCHESPATH%
 echo.
+
 pause
 
 rem
@@ -88,10 +89,9 @@ rem
 if not exist "%TARGETIMAGE%" goto export
 choice /T 10 /D N /C YN /M "Create image from scratch? (existing image will be deleted) default: no"
 if errorlevel 2 goto mountimage
+
 if exist %TARGETIMAGE% ( del /Q %TARGETIMAGE% )
 echo.
-
-
 :export
 rem
 rem export image
@@ -134,6 +134,13 @@ set /p MountIndex=Select number of desired image:
 dism /English /Mount-Image /ImageFile:%TARGETIMAGE% /Index:%MountIndex% /MountDir:%MOUNTDIR%
 echo.
 
+rem
+rem setting image marker
+rem
+echo *** Set image marker file ***
+echo %today% > "%MOUNTDIR%\EDU-1903-%today%.MRK"
+echo.
+
 
 :updates
 rem
@@ -160,7 +167,7 @@ echo *** Copy default start menu layout ***
 choice /T 5 /D N /C YN /M "Copy start menu layout? default: no"
 if errorlevel 2 goto auditmode
 rem powershell "Import-StartLayout -LayoutPath '%~d0\7_Sysprep\StartLayout_with_taskbar.xml' -MountPath '%MOUNTDIR%\\'"
-copy /y "%~d0\7_Sysprep\StartLayout_with_taskbar.xml" "%MOUNTDIR%\Users\Default\AppData\Local\Microsoft\Windows\Shell\LayoutModification.xml"
+copy /y "%~d0\7_Sysprep\StartLayout_with_taskbar_201909.xml" "%MOUNTDIR%\Users\Default\AppData\Local\Microsoft\Windows\Shell\LayoutModification.xml"
 echo.
 
 
@@ -261,8 +268,9 @@ echo Edits a Windows image.
 echo.
 echo %~n0 ^[^<WIMFile^>^]
 echo.
-echo  WIMFile           Specifies the WIM file that contains the windows image to be edited.
-echo                    A selection will be shown if there is more than one image.
+echo  WIMFile        Specifies the WIM file that contains the windows image to
+echo                 be edited.
+echo                 A selection will be shown if there is more than one image.
 echo.
 echo  Examples:
 echo    %~n0 C:\winsetup\windows-10-install.wim
