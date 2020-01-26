@@ -13,6 +13,7 @@ rem
 set WIMFILE=%~1
 set WORKINGDIR=%~2
 set DEST=%~3
+set OSCDIMGPATH="%ProgramFiles(x86)%\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\Oscdimg\oscdimg.exe"
 
 set TEMPL=media
 set FWFILES=fwfiles
@@ -30,7 +31,7 @@ if /i not "%~4"=="" goto usage
 rem
 rem Make sure OSCDImg is available
 rem
-if not exist "%ProgramFiles(x86)%\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\Oscdimg\oscdimg.exe" (
+if not exist %OSCDIMGPATH% (
     echo ERROR: OSCDImg is not available. Have you installed Windows ADK
     goto fail
 )
@@ -147,7 +148,7 @@ rem
   rem
   echo Creating %DEST%...
   echo.
-  oscdimg -bootdata:%BOOTDATA% -l"WinSetup%today%" -u1 -udfver102 "%WORKINGDIR%\%TEMPL%" "%DEST%" >NUL
+  %OSCDIMGPATH% -bootdata:%BOOTDATA% -l"WinSetup%today%" -u1 -udfver102 "%WORKINGDIR%\%TEMPL%" "%DEST%" >NUL
   if errorlevel 1 (
     echo ERROR: Failed to create "%DEST%" file.
     goto fail
