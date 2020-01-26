@@ -83,6 +83,15 @@
                         <Group>Administrators</Group>
                         <Name>Administrator</Name>
                     </LocalAccount>
+                    <LocalAccount wcm:action="add">
+                        <Password>
+                            <Value>offline</Value>
+                            <PlainText>true</PlainText>
+                        </Password>
+                        <DisplayName>Offlinezugang</DisplayName>
+                        <Group>Administrators</Group>
+                        <Name>offline</Name>
+                    </LocalAccount>
                 </LocalAccounts>
             </UserAccounts>
         </component>
