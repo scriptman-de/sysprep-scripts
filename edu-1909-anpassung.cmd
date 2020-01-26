@@ -142,6 +142,12 @@ echo %today% > "%MOUNTDIR%\EDU-1909-%today%.MRK"
 echo %PATCHES% >> "%MOUNTDIR%\EDU-1909-%today%.MRK"
 echo.
 
+rem
+rem enable NetFx3
+rem
+echo *** enabling .Net Framework 3.5 ***
+DISM /Image:%MOUNTDIR% /Enable-Feature /FeatureName:NetFx3 /All /LimitAccess /Source:"%~dp0\2_IMAGES\sxs-1909"
+
 
 :updates
 rem
