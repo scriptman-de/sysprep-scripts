@@ -11,4 +11,6 @@ Scripts für das Windows 10 offline servicing
 ## WIM-Dateien
 Die wim-Dateien sind die vom Skript angepassten Images. Die Benamung erfolgt nach dem Muster ``*Edition*-*Release*-*Erstellungsdatum*[-*Erweiterte-Kennung*].wim`` (edu-1903-20190901[-full|-audit].wim)
 
+Für die Images mit integrierten Treibern wird das Modell in die Bezeichnung mit einfügt. ``*Edition*-*Release*-*Modell*-*Erstellungsdatum*.wim`` (edu-1909-Q958-20200110.wim)
+
 Die Datei ``install-full.wim`` ist für die Verwendung auf dem Installations-USB-Stick vorgesehen. In ihr werden alle funktionierenden Vollinstallationen (im Sysprep) gespeichert.
